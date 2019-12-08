@@ -8,7 +8,7 @@ namespace Day7
     {
         public Queue<int> OutputQueue { get; set; } = new Queue<int>();
 
-        public void Output(int output)
+        public void SendOutput(int output)
         {
             OutputQueue.Enqueue(output);
         }

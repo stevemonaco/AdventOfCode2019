@@ -4,7 +4,6 @@ namespace Day7
 {
     public interface IInputProvider
     {
-        Queue<string> InputQueue { get; set; }
-        string GetInput();
+        int GetInput();
     }
 }

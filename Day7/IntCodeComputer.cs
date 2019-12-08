@@ -51,13 +51,16 @@ namespace Day7
 
         public int[] Program { get; set; }
         public int IP { get; set; }
-        public IInputProvider InputProvider { get; }
-        public IOutputSink OutputSink { get; }
+        public IInputProvider InputProvider { get; set; }
+        public List<IOutputSink> OutputSinks { get; } = new List<IOutputSink>();
+        public QueueOutputSink ResultSink { get; } = new QueueOutputSink();
+        public string ComputerName { get; set; }
 
-        public IntCodeComputer(IInputProvider inputProvider, IOutputSink outputSink)
+        public IntCodeComputer() { }
+
+        public IntCodeComputer(IInputProvider inputProvider)
         {
             InputProvider = inputProvider;
-            OutputSink = outputSink;
         }
 
         public IntCodeComputer(ComputerState state)
@@ -65,7 +68,6 @@ namespace Day7
             Program = state.Program.Clone() as int[];
             IP = state.IP;
             InputProvider = state.InputProvider;
-            OutputSink = state.OutputSink;
         }
 
         public void LoadProgramFromFile(string fileName) =>
@@ -93,16 +95,18 @@ namespace Day7
             }
         }
 
-        public ComputerState SaveState()
+        public void AddOutputSink(IOutputSink sink) => OutputSinks.Add(sink);
+
+        /*public ComputerState SaveState()
         {
             var state = new ComputerState();
             state.IP = IP;
             state.Program = Program.Clone() as int[];
             state.InputProvider = new StringInputProvider(InputProvider.InputQueue);
             state.OutputSink = new QueueOutputSink();
-            state.OutputSink.OutputQueue = new Queue<int>(OutputSink.OutputQueue);
+            state.OutputSink.OutputQueue = new Queue<int>(OutputSinks.OutputQueue);
             return state;
-        }
+        }*/
 
         private Instruction ParseInstruction()
         {
@@ -157,13 +161,15 @@ namespace Day7
                     IP += inst.Length;
                     break;
                 case Opcode.Input:
-                    operand1 = int.Parse(InputProvider.GetInput());
+                    operand1 = InputProvider.GetInput();
                     Program[inst.A.Value] = operand1;
                     IP += inst.Length;
                     break;
                 case Opcode.Output:
                     operand1 = ReadValue(inst.A);
-                    OutputSink.Output(operand1);
+                    foreach(var sink in OutputSinks)
+                        sink.SendOutput(operand1);
+                    ResultSink.SendOutput(operand1);
                     IP += inst.Length;
                     break;
                 case Opcode.JumpIfTrue:
