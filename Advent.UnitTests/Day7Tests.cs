@@ -1,6 +1,4 @@
 ﻿using NUnit.Framework;
-using System.Collections.Generic;
-using Day7;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,7 +12,7 @@ namespace Advent.UnitTests
         [TestCase("3,31,3,32,1002,32,10,32,1001,31,-2,31,1007,31,0,33,1002,33,7,33,1,33,31,31,1,32,31,31,4,31,99,0,0,0", 65210)]
         public async Task GetMaxThrusterOutput_AsExpected(string programString, int expected)
         {
-            var program = IntCodeComputer.CreateProgramFromString(programString);
+            var program = Day7.IntCodeComputer.CreateProgramFromString(programString);
             int[] phaseOptions = new[] { 0, 1, 2, 3, 4 };
             var programs = Enumerable.Repeat(program, phaseOptions.Length).ToList();
             var actual = await Day7.Program.GetMaxThrusterOutput(phaseOptions, programs, 0, false);
