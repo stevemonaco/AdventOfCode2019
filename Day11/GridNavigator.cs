@@ -19,7 +19,14 @@ namespace Day11
 
         private ProgramState _state = ProgramState.AwaitPaint;
         private IntCodeComputer _computer;
-        //private bool _canPaint = false;
+        private Dictionary<Orientation, (int, int)> _moveVectors =
+            new Dictionary<Orientation, (int, int)>
+            {
+                { Orientation.North, (0, 1) },
+                { Orientation.South, (0, -1) },
+                { Orientation.East, (1, 0) },
+                { Orientation.West, (-1, 0) },
+            };
 
         public GridNavigator(string program)
         {
@@ -85,9 +92,6 @@ namespace Day11
 
         private void Paint(PanelColor color)
         {
-            //if (!_canPaint)
-            //    return;
-
             if (Panels.ContainsKey((X, Y)))
             {
                 Panels[(X, Y)].Color = color;
@@ -107,34 +111,24 @@ namespace Day11
 
         private void TurnAndAdvance(TurnDirection direction)
         {
-            Orientation = Orientation switch
-            {
-                Orientation.North => direction == TurnDirection.Left90 ? Orientation.West : Orientation.East,
-                Orientation.West => direction == TurnDirection.Left90 ? Orientation.South : Orientation.North,
-                Orientation.South => direction == TurnDirection.Left90 ? Orientation.East : Orientation.West,
-                Orientation.East => direction == TurnDirection.Left90 ? Orientation.North : Orientation.South,
-                _ => throw new Exception()
-            };
-
             switch(Orientation)
             {
                 case Orientation.North:
-                    Y++;
+                    Orientation = direction == TurnDirection.Left90 ? Orientation.West : Orientation.East;
                     break;
                 case Orientation.West:
-                    X--;
+                    Orientation = direction == TurnDirection.Left90 ? Orientation.South : Orientation.North;
                     break;
                 case Orientation.South:
-                    Y--;
+                    Orientation = direction == TurnDirection.Left90 ? Orientation.East : Orientation.West;
                     break;
                 case Orientation.East:
-                    X++;
+                    Orientation = direction == TurnDirection.Left90 ? Orientation.North : Orientation.South;
                     break;
             }
 
-            //if (Panels.ContainsKey((X, Y)))
-            //    if (Panels[(X, Y)].Color == PanelColor.White)
-            //        _canPaint = true;        
+            X += _moveVectors[Orientation].Item1;
+            Y += _moveVectors[Orientation].Item2;
         }
     }
 }
